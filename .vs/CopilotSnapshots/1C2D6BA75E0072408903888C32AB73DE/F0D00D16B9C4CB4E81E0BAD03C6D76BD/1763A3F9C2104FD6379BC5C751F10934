@@ -1,0 +1,76 @@
+﻿using Assigment_02.Util;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Assigment_02.Pages
+{
+    public class AlertsPage
+    {
+        private ChromeDriver _driver;
+
+        private IWebElement BtnAlert => _driver.FindElement(By.CssSelector("button[id='alertButton']"));
+
+        private IWebElement BtnConfirm => _driver.FindElement(By.Id("confirmButton"));
+
+        private IWebElement BtnPrompt => _driver.FindElement(By.Id("promptButton"));
+
+        private IAlert alert => _driver.SwitchTo().Alert();
+
+        public AlertsPage(ChromeDriver _driver)
+        {
+            this._driver = _driver;
+        }
+
+        public void ClickAlertButton()
+        {
+            BtnAlert.Click();
+        }
+
+        public string getAlertText()
+        {
+            ClickAlertButton();
+            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver =>
+            {
+                try
+                {
+                    return driver.SwitchTo().Alert() != null;
+                }
+                catch (NoAlertPresentException)
+                {
+                    return false;
+                }
+            });
+            string text = alert.Text;
+
+            alert.Accept(); // required, but invisible to test
+
+            return text;
+        }
+
+        public Dictionary<string, bool> GetElementVisibilityStatus()
+        {
+            var status = new Dictionary<string, bool>();
+
+            status["ButtonAlert"] = ElementUtil.IsElementPresent(BtnAlert);
+            status["ButtonConfirm"] = ElementUtil.IsElementPresent(BtnConfirm);
+            status["ButtonPromote"] = ElementUtil.IsElementPresent(BtnPrompt);
+
+            return status;
+        }
+
+        public Dictionary<string, bool> GetAlertVisibleStatus()
+        {
+            var status = new Dictionary<string, bool>();
+
+            status["Alert"] = AlertUtil.IsAlertPresent(alert);
+            
+            return status;
+        }
+
+    }
+}

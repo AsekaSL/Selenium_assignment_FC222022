@@ -1,0 +1,53 @@
+﻿using Assigment_02.Interfaces;
+using OpenQA.Selenium;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Assigment_02.Tests
+{
+    [TestFixture]
+    internal class TC004___AlertsTests : BaseSetup
+    {
+        [SetUp]
+        public void TestSetup()
+        {
+            // landing to Alerts page
+            alertsPage =  landingPage.ClickTxtAleart();
+        }
+
+        [TestCase(TestName = "TC004_1 - Alerts - Verification of the Alerts page")]
+        public void VerificationAlertsPage()
+        {
+            // Verification of the page
+            var elementVisibility = alertsPage.GetElementVisibilityStatus();
+            var IsAllElementsVisible = elementVisibility.All(kv => kv.Value == true);
+            var isNotVisibleElements = elementVisibility.FirstOrDefault(kv => kv.Value == false).Key;
+
+            Assert.That(IsAllElementsVisible, Is.True, $"The element '{isNotVisibleElements}' is not visible on the page.");
+        }
+
+        [TestCase(TestName = "TC004_2 - Alerts - Verification of the Alert text")]
+        public void VerificationAlertText()
+        {
+            // Trigger the alert 
+            alertsPage.ClickAlertButton();
+            Thread.Sleep(5000);
+
+            //// Verification of the alert
+            var alertVisibility = alertsPage.GetAlertVisibleStatus();
+            var IsAlertVisible = alertVisibility.All(kv => kv.Value == true);
+            var isNotVisibleAlert = alertVisibility.FirstOrDefault(kv => kv.Value == false).Key;
+
+            Assert.That(IsAlertVisible, Is.True, $"The alert '{isNotVisibleAlert}' is not visible on the page.");
+
+            //// Verify the alert text
+            string alertText = alertsPage.getAlertText();
+
+            Assert.That(alertText, Is.EqualTo("Today is a working day or less likely a holiday"), "The alert text is not as expected.");
+
+            // Accept the alert to close it
+            alertsPage.AcceptAlert();
+        }
+    }
+}
